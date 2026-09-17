@@ -3,6 +3,27 @@
 > Основание: сравнительный анализ `vite-plugin-pilot` ([VITE_PLUGIN_PILOT_ANALYSIS.md](./VITE_PLUGIN_PILOT_ANALYSIS.md)).
 > Цель: заимствовать сильные стороны pilot'а, не ломая нашу HMR-only архитектуру и инфраструктурные ограничения (без MCP, без внешних CLI).
 
+## Статус реализации
+
+| Фаза | Блок | Статус | Коммит |
+|---|---|---|---|
+| 0 | B0.1 — split devBrowserLogs.ts | ✅ done | `9b56f37` |
+| 0 | B0.2 — расширить constants | ✅ done | `9b56f37` |
+| 0 | B0.3 — расширить types | ✅ done | `9b56f37` |
+| 0 | B0.4 — smoke-тесты | ✅ done | `9b56f37` |
+| 1 | B1.1 — `GET /__agent/manifest` | ✅ done | `71f2c67` |
+| 1 | B1.2 — multi-instance | ✅ done | `d875a54` |
+| 1 | B1.3 — `GET /__agent/instances` | ✅ done | `a19c0bd` |
+| 1 | B1.4 — `safeSerialize` + `withTimeout` | ✅ done | `71f2c67` |
+| 1 | B1.5 — AGENTS.md merge-маркер | ✅ done | `a19c0bd` |
+| 2 | B2.1 — compact DOM snapshot | ✅ done | `7f99c9f` |
+| 2 | B2.2 — `__agent_*` helpers | ✅ done | `7f99c9f` |
+| 2 | B2.3 — raw DOM snapshot | ✅ done | `7f99c9f` |
+| 3 | Element Inspector (опц.) | ⏳ не реализовано | — |
+| — | npm-пакет | ⏳ не реализовано | — |
+
+**Phase 0–2 завершены:** 182 теста зелёных (16 файлов), `npm run verify` (typecheck + lint + test).
+
 ---
 
 ## 1. Принципы рефакторинга (что НЕ трогаем)
