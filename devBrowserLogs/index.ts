@@ -6,7 +6,8 @@
  *
  * Активен только в dev-режиме (вызывающий код проверяет `process.env.NODE_ENV`).
  */
-import type {Plugin} from 'vite';
+import type {Plugin, ViteDevServer} from 'vite';
+import {buildAgentsMdSnippet, patchAgentsMd} from './agentsMd';
 import {pushToBuffer} from './logs';
 import {registerMiddleware} from './middleware';
 import type {DevLogsContext} from './types';
@@ -25,6 +26,20 @@ export function createContext(): DevLogsContext {
     return ctx;
 }
 
+/** Best-effort патч AGENTS.md в корне проекта (не должен ломать старт плагина). */
+function scheduleAgentsMdPatch(server: ViteDevServer): void {
+    const root = server.config.root;
+    const port = server.config.server.port ?? 5173;
+    const snippet = buildAgentsMdSnippet(port);
+
+    setImmediate(() => {
+        patchAgentsMd(root, snippet).catch((err: unknown) => {
+            const message = err instanceof Error ? err.message : String(err);
+            process.stderr.write(`[vite-agent-bridge] AGENTS.md patch failed: ${message}\n`);
+        });
+    });
+}
+
 /** Vite-плагин factory. */
 export default function devBrowserLogs(): Plugin {
     return {
@@ -33,6 +48,7 @@ export default function devBrowserLogs(): Plugin {
             const ctx = createContext();
 
             registerMiddleware(server, ctx);
+            scheduleAgentsMdPatch(server);
         },
     };
 }

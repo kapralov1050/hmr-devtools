@@ -70,9 +70,14 @@ const TOOLS: readonly ManifestTool[] = [
     },
     {
         name: 'browser_instances',
-        description: `List active browser instances (tabs). (planned; endpoint ${agentInstancesEndpoint})`,
+        description: 'List active browser instances with metadata (id, url, title, lastSeen).',
         endpoint: `GET ${agentInstancesEndpoint}`,
-        input_schema: {type: 'object', properties: {}},
+        input_schema: {
+            type: 'object',
+            properties: {
+                since: {type: 'string', format: 'date-time'},
+            },
+        },
     },
 ] as const;
 

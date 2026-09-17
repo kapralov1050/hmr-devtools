@@ -7,6 +7,7 @@
 import type http from 'node:http';
 import type {ViteDevServer} from 'vite';
 import {
+    agentInstancesEndpoint,
     agentManifestEndpoint,
     defaultInstanceHeartbeatMs,
     endpoint,
@@ -18,6 +19,7 @@ import {
 } from '../devLogger/constants';
 import {handleDevLog, handleLogs} from './logs';
 import {handleExec, handleExecResult} from './exec';
+import {handleInstances} from './instances';
 import {handleManifest} from './manifest';
 import {
     handleInstanceHeartbeat,
@@ -43,6 +45,10 @@ export function registerMiddleware(server: ViteDevServer, ctx: DevLogsContext): 
 
     server.middlewares.use(agentManifestEndpoint, (req: http.IncomingMessage, res: http.ServerResponse) => {
         handleManifest(req, res, ctx);
+    });
+
+    server.middlewares.use(agentInstancesEndpoint, (req: http.IncomingMessage, res: http.ServerResponse) => {
+        handleInstances(req, res, ctx);
     });
 
     // Периодический prune протухших инстансов. Используем heartbeatMs как интервал:
