@@ -13,5 +13,19 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "verify": "npm run typecheck && npm run lint && npm run test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^2.1.9",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^9.1.2",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.9.7",
+    "supertest": "^7.2.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.0",
+    "vite": "^5.4.21",
+    "vitest": "^2.1.9"
   }
 }
