@@ -5,8 +5,8 @@
  * minimal `req`/`res` mocks, capture WS messages, simulate browser reply.
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import type {LogPayload} from '../devLogger/types';
-import {handleDom, handleDomResponse} from '../devBrowserLogs/dom';
+import type {LogPayload} from '../client/types';
+import {handleDom, handleDomResponse} from '../server/dom';
 import {createContext, createMockServer, createReq, createRes} from './helpers';
 
 const emptyEntry: LogPayload = {ts: '', level: '', type: '', msg: '', url: ''};

@@ -18,7 +18,7 @@ import {
     hmrEventInstanceHeartbeat,
     hmrEventInstanceRegister,
     hmrEventLog,
-} from '../devLogger/constants';
+} from '../client/constants';
 import {handleDom, handleDomResponse} from './dom';
 import {handleDevLog, handleLogs} from './logs';
 import {handleExec, handleExecResult} from './exec';

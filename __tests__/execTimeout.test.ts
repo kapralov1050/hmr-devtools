@@ -2,7 +2,7 @@
  * Tests for devLogger/core/execTimeout.ts.
  */
 import {describe, expect, it} from 'vitest';
-import {ExecTimeoutError, withTimeout} from '../devLogger/core/execTimeout';
+import {ExecTimeoutError, withTimeout} from '../client/core/execTimeout';
 
 describe('withTimeout', () => {
     it('resolves when the inner promise resolves before timeout', async () => {

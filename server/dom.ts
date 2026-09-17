@@ -9,8 +9,8 @@
  */
 import type http from 'node:http';
 import type {ViteDevServer} from 'vite';
-import {defaultServerWaitTimeoutMs, hmrEventDomRequest} from '../devLogger/constants';
-import type {DomResponse, InstanceId} from '../devLogger/types';
+import {defaultServerWaitTimeoutMs, hmrEventDomRequest} from '../client/constants';
+import type {DomResponse, InstanceId} from '../client/types';
 import {maxDomResults, type DevLogsContext} from './types';
 
 function writeJson(res: http.ServerResponse, status: number, body: unknown): void {

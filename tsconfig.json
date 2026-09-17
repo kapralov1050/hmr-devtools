@@ -20,7 +20,7 @@
     "types": ["node", "vitest/globals"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["devLogger/*"]
+      "@/*": ["client/*"]
     }
   },
   "include": ["**/*.ts"],

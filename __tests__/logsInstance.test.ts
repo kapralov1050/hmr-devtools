@@ -3,8 +3,8 @@
  * `handleDevLog` (envelope parsing).
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import type {LogPayload} from '../devLogger/types';
-import {handleDevLog, handleLogs} from '../devBrowserLogs/logs';
+import type {LogPayload} from '../client/types';
+import {handleDevLog, handleLogs} from '../server/logs';
 import {createContext, createReq, createRes} from './helpers';
 
 function log(overrides: Partial<LogPayload> = {}): LogPayload {

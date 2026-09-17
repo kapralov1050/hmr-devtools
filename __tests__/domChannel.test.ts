@@ -6,9 +6,9 @@
  * raw-snapshot attrs/styles/viewportOnly.
  */
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {buildCompactSnapshot, buildRawSnapshot, isInteractive, makeDomHandler} from '../devLogger/channels/domChannel';
-import {hmrEventDomResponse} from '../devLogger/constants';
-import type {DomSpec} from '../devLogger/types';
+import {buildCompactSnapshot, buildRawSnapshot, isInteractive, makeDomHandler} from '../client/channels/domChannel';
+import {hmrEventDomResponse} from '../client/constants';
+import type {DomSpec} from '../client/types';
 
 function makePage(html: string): void {
     document.body.innerHTML = html;

@@ -13,7 +13,7 @@
  */
 import {initInstanceReg} from '@/channels/instanceReg';
 import {initDomChannel} from '@/channels/domChannel';
-import {initConsoleInterceptors} from '@/consoleInterceptor';
+import {initDevExec} from '@/channels/execChannel';
 import {
     flushDuplicates,
     originalConsoleError,
@@ -26,11 +26,11 @@ import {
     resetDedupState,
     trackedListeners,
 } from '@/core';
-import {initDevExec} from '@/execChannel';
-import {initGlobalErrorInterceptors} from '@/globalErrorInterceptor';
+import {initConsoleInterceptors} from '@/interceptors/console';
+import {initGlobalErrorInterceptors} from '@/interceptors/globalErrors';
+import {initNetworkInterceptors} from '@/interceptors/network';
+import {setupDevLogger} from '@/interceptors/vue';
 import {installAgentHelpers} from '@/helpers/agentHelpers';
-import {initNetworkInterceptors} from '@/networkInterceptor';
-import {setupDevLogger} from '@/vueInterceptor';
 
 export {setupDevLogger};
 

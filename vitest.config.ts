@@ -12,12 +12,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['devLogger/**', 'devBrowserLogs/**'],
+      include: ['client/**', 'server/**'],
     },
   },
   resolve: {
     alias: {
-      '@': resolve(rootDir, 'devLogger'),
+      '@': resolve(rootDir, 'client'),
     },
   },
 });

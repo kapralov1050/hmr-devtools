@@ -2,14 +2,11 @@
 /**
  * Перехват console.log/info/warn/error.
  */
-import {
-    originalConsoleError,
-    originalConsoleInfo,
-    originalConsoleLog,
-    originalConsoleWarn,
-    sendLog,
-} from '@/core';
-import {createLog, findError, formatArgs, getStack} from '@/helpers';
+import {sendLog} from '@/core/dedup';
+import {findError, getStack} from '@/core/errorHelpers';
+import {formatArgs} from '@/core/logFormat';
+import {createLog} from '@/core/logPayload';
+import {originalConsoleError, originalConsoleInfo, originalConsoleLog, originalConsoleWarn} from '@/core/originals';
 
 export function initConsoleInterceptors(): void {
     console.log = (...args: unknown[]) => {

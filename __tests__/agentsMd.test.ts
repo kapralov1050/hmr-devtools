@@ -15,7 +15,7 @@ import {
     agentsMdPath,
     buildAgentsMdSnippet,
     patchAgentsMd,
-} from '../devBrowserLogs/agentsMd';
+} from '../server/agentsMd';
 
 describe('buildAgentsMdSnippet', () => {
     it('contains both markers', () => {

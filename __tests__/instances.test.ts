@@ -4,9 +4,9 @@
  * Pattern: call handler directly with minimal `req`/`res` mocks (see `./helpers.ts`).
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import {ensureInstance} from '../devBrowserLogs/instanceRegistry';
-import {handleInstances} from '../devBrowserLogs/instances';
-import type {InstanceState} from '../devLogger/types';
+import {ensureInstance} from '../server/instanceRegistry';
+import {handleInstances} from '../server/instances';
+import type {InstanceState} from '../client/types';
 import {createContext, createReq, createRes} from './helpers';
 
 type ParsedInstance = InstanceState;

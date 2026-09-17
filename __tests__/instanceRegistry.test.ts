@@ -10,7 +10,7 @@ import {
     handleInstanceRegister,
     listInstances,
     pruneStaleInstances,
-} from '../devBrowserLogs/instanceRegistry';
+} from '../server/instanceRegistry';
 import {createContext} from './helpers';
 
 describe('ensureInstance', () => {

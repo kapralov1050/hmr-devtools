@@ -24,22 +24,20 @@ export default tseslint.config(
       'no-console': 'error',
     },
   },
-  // Phase 0: legacy devLogger-файлы (написаны до Phase 1 и не подвергались
-  // полному type-checked режиму). Новый код в `devLogger/channels/**`,
-  // `devLogger/core/serialize.ts`, `devLogger/core/execTimeout.ts`,
-  // `devLogger/helpers/**`, `devLogger/constants.ts`, `devLogger/types.ts`
+  // Phase 0: legacy client-файлы (написаны до Phase 1 и не подвергались
+  // полному type-checked режиму). Новый код в `client/channels/**`,
+  // `client/core/serialize.ts`, `client/core/execTimeout.ts`,
+  // `client/helpers/**`, `client/constants.ts`, `client/types.ts`
   // подчиняется полному набору правил и override не получает.
   {
     files: [
-      'devLogger/index.ts',
-      'devLogger/core.ts',
-      'devLogger/consoleInterceptor.ts',
-      'devLogger/globalErrorInterceptor.ts',
-      'devLogger/networkInterceptor.ts',
-      'devLogger/vueInterceptor.ts',
-      'devLogger/helpers.ts',
-      'devLogger/execChannel.ts',
-      'devLogger/channels/instanceReg.ts',
+      'client/index.ts',
+      'client/interceptors/**',
+      'client/core/index.ts',
+      'client/core/originals.ts',
+      'client/core/flushQueue.ts',
+      'client/channels/execChannel.ts',
+      'client/channels/instanceReg.ts',
     ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',

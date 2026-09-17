@@ -65,9 +65,8 @@ hmr devtools/
 ├── ARCHITECTURE.md                        ← этот файл
 ├── VITE_PLUGIN_PILOT_ANALYSIS.md
 │
-├── devBrowserLogs/                        ← серверная часть (Node, Vite plugin)
+├── server/                                ← серверная часть (Node, Vite plugin)
 │   ├── index.ts                           ← Vite plugin factory, configureServer
-│   ├── constants.ts                       ← эндпоинты /__agent/* и /__dev_*
 │   ├── types.ts                           ← InstanceState, LogPayload, ManifestTool, …
 │   │
 │   ├── manifest.ts                        ← GET /__agent/manifest
@@ -77,17 +76,24 @@ hmr devtools/
 │   ├── instances.ts                       ← GET /__agent/instances
 │   │
 │   ├── instanceRegistry.ts                ← Map<InstanceId, InstanceState>
+│   ├── agentsMd.ts                        ← утилита для merge-патча AGENTS.md
 │   └── middleware.ts                      ← общий router для server.middlewares.use
 │
-├── devLogger/                             ← клиентская часть (браузер, dev only)
+├── client/                                ← клиентская часть (браузер, dev only)
 │   ├── index.ts                           ← initDevLogger() — точка входа
 │   ├── constants.ts                       ← HMR event names, defaults
 │   ├── types.ts                           ← InstanceId, AgentMessageEnvelope, …
 │   │
 │   ├── core/
-│   │   ├── ringBuffer.ts                  ← per-instance буфер с truncate-маркерами
-│   │   ├── dedup.ts                       ← дедупликация одинаковых подряд сообщений
-│   │   ├── lifecycle.ts                   ← register/unregister + HMR-dispose
+│   │   ├── originals.ts                   ← оригиналы console/fetch/XHR + trackedListeners
+│   │   ├── dedup.ts                       ← sendLog + dedup state + flushDuplicates/resetDedupState
+│   │   ├── flushQueue.ts                  ← rate limiting через queueMicrotask + maxBatch
+│   │   ├── listeners.ts                   ← addTrackedListener
+│   │   ├── index.ts                       ← barrel re-export (back-compat с @/core)
+│   │   ├── logFormat.ts                   ← formatArgs, formatReason, maxArgLen
+│   │   ├── logPayload.ts                  ← createLog + LogInput + nowTs/pageUrl
+│   │   ├── errorHelpers.ts                ← findError, getStack, getComponentName
+│   │   ├── execTimeout.ts                 ← ExecTimeoutError + withTimeout
 │   │   └── serialize.ts                   ← JSON с cap + таймаут + защита от cyclic
 │   │
 │   ├── interceptors/
@@ -99,10 +105,21 @@ hmr devtools/
 │   ├── channels/
 │   │   ├── instanceReg.ts                 ← генерация instanceId + register/heartbeat
 │   │   ├── execChannel.ts                 ← приём dev-exec, выполнение, dev-exec-result
-│   │   └── domChannel.ts                  ← сбор компактного/сырого DOM по запросу
+│   │   └── domChannel/
+│   │       ├── index.ts                   ← HMR-обвязка + initDomChannel
+│   │       ├── types.ts                   ← DevDomSender, RawNode, RawSnapshotResult
+│   │       ├── interactive.ts             ← isInteractive predicate
+│   │       ├── compact.ts                 ← compact DOM snapshot
+│   │       └── raw.ts                     ← raw JSON DOM snapshot
 │   │
 │   └── helpers/
-│       └── agentHelpers.ts                ← __agent_clickByText / typeByPlaceholder / ...
+│       └── agentHelpers/
+│           ├── index.ts                   ← installAgentHelpers + globalThis регистрация
+│           ├── cache.ts                   ← snapshot cache для __agent_click(idx)
+│           ├── queries.ts                 ← __agent_snapshot / __agent_findByText
+│           ├── interactions.ts            ← __agent_click / setValue / type
+│           ├── waits.ts                   ← __agent_wait / __agent_waitFor
+│           └── timing.ts                  ← rafFrame / waitMs
 │
 └── __tests__/
     ├── instanceRegistry.test.ts

@@ -3,8 +3,10 @@
  * Восстановление оригинальных хендлеров при HMR dispose.
  */
 import type {App} from 'vue';
-import {originalConsoleError, originalConsoleWarn, sendLog} from '@/core';
-import {createLog, getComponentName, getStack} from '@/helpers';
+import {sendLog} from '@/core/dedup';
+import {getComponentName, getStack} from '@/core/errorHelpers';
+import {createLog} from '@/core/logPayload';
+import {originalConsoleError, originalConsoleWarn} from '@/core/originals';
 
 /**
  * Регистрирует Vue-обработчики ошибок и предупреждений на инстансе приложения,

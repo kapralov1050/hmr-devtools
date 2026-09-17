@@ -6,7 +6,7 @@
  * Приём WS-событий `dev-instance-register` и `dev-instance-heartbeat` —
  * через `handleInstanceRegister` / `handleInstanceHeartbeat`.
  */
-import type {InstanceId, InstanceState} from '../devLogger/types';
+import type {InstanceId, InstanceState} from '../client/types';
 import type {DevLogsContext, InstanceEntry} from './types';
 
 /**

@@ -7,8 +7,8 @@
  * ещё не реализован (помечается в `description` суффиксом "(planned)").
  */
 import type http from 'node:http';
-import {agentDomEndpoint, agentEvalEndpoint, agentInstancesEndpoint} from '../devLogger/constants';
-import type {Manifest, ManifestTool} from '../devLogger/types';
+import {agentDomEndpoint, agentEvalEndpoint, agentInstancesEndpoint} from '../client/constants';
+import type {Manifest, ManifestTool} from '../client/types';
 import packageJson from '../package.json' with {type: 'json'};
 import type {DevLogsContext} from './types';
 

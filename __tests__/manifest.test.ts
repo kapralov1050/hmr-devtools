@@ -6,8 +6,8 @@
  */
 import {beforeEach, describe, expect, it} from 'vitest';
 import type http from 'node:http';
-import {buildManifest, handleManifest} from '../devBrowserLogs/manifest';
-import type {Manifest} from '../devLogger/types';
+import {buildManifest, handleManifest} from '../server/manifest';
+import type {Manifest} from '../client/types';
 import packageJson from '../package.json' with {type: 'json'};
 import {createRes} from './helpers';
 

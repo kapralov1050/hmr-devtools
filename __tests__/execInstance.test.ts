@@ -3,8 +3,8 @@
  * `handleExecResult` (fromInstance stamping).
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import type {LogPayload} from '../devLogger/types';
-import {handleExec, handleExecResult} from '../devBrowserLogs/exec';
+import type {LogPayload} from '../client/types';
+import {handleExec, handleExecResult} from '../server/exec';
 import {createContext, createMockServer, createReq, createRes} from './helpers';
 
 const emptyEntry: LogPayload = {ts: '', level: '', type: '', msg: '', url: ''};

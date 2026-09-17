@@ -3,8 +3,8 @@
  * Приём логов из HMR WebSocket (`dev-log`) и push в per-instance ring buffer.
  */
 import type http from 'node:http';
-import type {InstanceId, LogPayload} from '../devLogger/types';
-import {defaultMaxEntries} from '../devLogger/constants';
+import type {InstanceId, LogPayload} from '../client/types';
+import {defaultMaxEntries} from '../client/constants';
 import {ensureInstance} from './instanceRegistry';
 import type {DevLogsContext} from './types';
 

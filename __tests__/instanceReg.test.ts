@@ -9,12 +9,12 @@ import {
     getInstanceId,
     initInstanceReg,
     setupInstanceReg,
-} from '../devLogger/channels/instanceReg';
+} from '../client/channels/instanceReg';
 import {
     defaultInstanceHeartbeatMs,
     hmrEventInstanceHeartbeat,
     hmrEventInstanceRegister,
-} from '../devLogger/constants';
+} from '../client/constants';
 
 describe('generateInstanceId', () => {
     it('returns a non-empty string', () => {

@@ -4,7 +4,7 @@
  * Re-exported from `./index` to keep the boundary stable: callers continue
  * to import these from `@/channels/domChannel`.
  */
-import type {DevExecSender} from '@/execChannel';
+import type {DevExecSender} from '@/channels/execChannel';
 
 export type DevDomSender = DevExecSender;
 

@@ -6,9 +6,9 @@
  * path via direct array manipulation rather than pushing 5001 entries.
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import {defaultMaxEntries as maxEntries} from '../devLogger/constants';
-import type {LogPayload} from '../devLogger/types';
-import {pushToBuffer} from '../devBrowserLogs/logs';
+import {defaultMaxEntries as maxEntries} from '../client/constants';
+import type {LogPayload} from '../client/types';
+import {pushToBuffer} from '../server/logs';
 import {createContext} from './helpers';
 
 function entry(msg: string): LogPayload {

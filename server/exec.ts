@@ -9,8 +9,8 @@
  */
 import type http from 'node:http';
 import type {ViteDevServer} from 'vite';
-import type {InstanceId} from '../devLogger/types';
-import {defaultServerWaitTimeoutMs, hmrEventExec} from '../devLogger/constants';
+import type {InstanceId} from '../client/types';
+import {defaultServerWaitTimeoutMs, hmrEventExec} from '../client/constants';
 import {maxExecResults, type DevExecResult, type DevLogsContext} from './types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {

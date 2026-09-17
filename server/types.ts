@@ -3,7 +3,7 @@
  * Импортируется только Node-кодом (Vite-плагином), алиасы `@/*` недоступны —
  * пути к `devLogger` относительные.
  */
-import type {DomResponse, InstanceId, InstanceState, LogPayload} from '../devLogger/types';
+import type {DomResponse, InstanceId, InstanceState, LogPayload} from '../client/types';
 
 /** Результат выполнения JS в браузере (сохраняется на сервере до востребования). */
 export interface DevExecResult {
