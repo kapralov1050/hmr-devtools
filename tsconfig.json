@@ -23,6 +23,6 @@
       "@/*": ["devLogger/*"]
     }
   },
-  "include": ["devLogger/**/*", "devBrowserLogs/**/*", "__tests__/**/*"],
-  "exclude": ["node_modules", "dist", "coverage"]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist", "coverage", "devLogger", "devBrowserLogs.ts"]
 }
