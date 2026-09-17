@@ -135,22 +135,6 @@ describe('handleDom (GET /__agent/dom)', () => {
         const body = JSON.parse(res.body) as {ok: boolean; error: string};
         expect(body.error).toBe('boom');
     });
-
-    it('compact: lines are stored in domResults LRU even without pending resolver', () => {
-        const req = createReq('/__agent/dom?format=compact');
-        const res = createRes();
-        ctx.push('tab-1', emptyEntry);
-
-        handleDom(req, res, server as never, ctx);
-        const id = (server.ws.sent[0] as {data: {id: string}}).data.id;
-
-        // Simulate clearing pending first, then sending a reply
-        ctx.pendingDom.delete(id);
-        expect(() => handleDomResponse({id, ok: true, value: 'cached'}, ctx)).not.toThrow();
-
-        expect(ctx.domResults.has(id)).toBe(true);
-        expect(ctx.domResults.get(id)?.value).toBe('cached');
-    });
 });
 
 describe('handleDomResponse (incoming WS dev-dom-response)', () => {

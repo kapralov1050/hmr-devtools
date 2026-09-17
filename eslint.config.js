@@ -24,12 +24,23 @@ export default tseslint.config(
       'no-console': 'error',
     },
   },
-  // Phase 0: devLogger — это уже написанный код, который ранее был исключён
-  // из проверок. Чтобы `verify` проходил без изменения поведения, ослабляем
-  // «type-checked»-правила только для этой директории. Новый код (devBrowserLogs/,
-  // Phase 1+) подчиняется полному набору правил.
+  // Phase 0: legacy devLogger-файлы (написаны до Phase 1 и не подвергались
+  // полному type-checked режиму). Новый код в `devLogger/channels/**`,
+  // `devLogger/core/serialize.ts`, `devLogger/core/execTimeout.ts`,
+  // `devLogger/helpers/**`, `devLogger/constants.ts`, `devLogger/types.ts`
+  // подчиняется полному набору правил и override не получает.
   {
-    files: ['devLogger/**'],
+    files: [
+      'devLogger/index.ts',
+      'devLogger/core.ts',
+      'devLogger/consoleInterceptor.ts',
+      'devLogger/globalErrorInterceptor.ts',
+      'devLogger/networkInterceptor.ts',
+      'devLogger/vueInterceptor.ts',
+      'devLogger/helpers.ts',
+      'devLogger/execChannel.ts',
+      'devLogger/channels/instanceReg.ts',
+    ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',

@@ -33,8 +33,7 @@ describe('generateInstanceId', () => {
         for (let i = 0; i < 20; i++) {
             ids.add(generateInstanceId());
         }
-        // With Date.now() collisions possible but Math.random suffix makes this very unlikely
-        expect(ids.size).toBeGreaterThan(1);
+        expect(ids.size).toBe(20);
     });
 });
 

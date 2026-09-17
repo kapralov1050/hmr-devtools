@@ -249,9 +249,7 @@ describe('buildRawSnapshot', () => {
         const out = buildRawSnapshot({format: 'raw', styles: 'computed', depth: 2});
         const body = out.tree[0];
         const div = body.children.find((c) => c.tag === 'div');
-        expect(div).toBeDefined();
-        expect(div!.computed).toBeDefined();
-        expect(Object.prototype.hasOwnProperty.call(div!.computed!, 'transform')).toBe(true);
+        expect(Object.prototype.hasOwnProperty.call(div?.computed ?? {}, 'transform')).toBe(true);
     });
 
     it('f) respects depth limit (children pruned beyond depth)', () => {
@@ -337,7 +335,7 @@ describe('makeDomHandler', () => {
         expect(payload.id).toBe('req-2');
         expect(payload.ok).toBe(true);
         expect(Array.isArray(payload.tree)).toBe(true);
-        expect(payload.sizeBytes).toBeGreaterThan(0);
+        expect(payload.sizeBytes).toBe(JSON.stringify(payload.tree).length);
         expect(payload.truncated).toBe(false);
     });
 

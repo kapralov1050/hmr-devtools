@@ -199,8 +199,7 @@ describe('truncatePreview', () => {
 
     it('truncates and appends marker when over limit', () => {
         const out = truncatePreview({blob: 'x'.repeat(200)}, 64);
-        expect(out.length).toBeLessThanOrEqual(64 + 32);
-        expect(out).toMatch(/truncated at 64 bytes/);
+        expect(out).toMatch(/…<truncated at 64 bytes>$/);
     });
 
     it('handles Map through replacer', () => {

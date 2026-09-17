@@ -59,7 +59,7 @@ describe('handleExec (GET /__dev_exec)', () => {
         expect(res.body).toBe('');
     });
 
-    it('simulates browser reply → resolves promise, removes from pending, stores result', () => {
+    it('c) simulates browser reply → resolves promise, removes from pending, stores result', () => {
         const req = createReq('/__dev_exec?code=1%2B1');
         const res = createRes();
         handleExec(req, res, server as never, ctx);

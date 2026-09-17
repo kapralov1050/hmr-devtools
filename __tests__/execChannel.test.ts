@@ -8,6 +8,7 @@
  * vitest+jsdom) while keeping the production glue (`initDevExec`) untouched.
  */
 import {describe, expect, it, vi} from 'vitest';
+import {defaultExecTimeoutMs} from '../devLogger/constants';
 import {makeDevExecHandler} from '../devLogger/execChannel';
 
 describe('makeDevExecHandler', () => {
@@ -109,5 +110,6 @@ describe('makeDevExecHandler', () => {
         expect(payload.id).toBe('req-tmo');
         expect(payload.ok).toBe(false);
         expect(payload.error).toMatch(/timed out/i);
+        expect(payload.error).toMatch(new RegExp(`timed out after ${defaultExecTimeoutMs}ms`));
     });
 });

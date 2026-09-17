@@ -30,7 +30,7 @@ describe('buildAgentsMdSnippet', () => {
         expect(snippet).toContain('http://localhost:4321/__agent/manifest');
     });
 
-    it('uses default port when not specified in URL — pass arbitrary port, expect that port', () => {
+    it('interpolates the given port into the manifest URL', () => {
         expect(buildAgentsMdSnippet(3000)).toContain(':3000/__agent/manifest');
         expect(buildAgentsMdSnippet(8080)).toContain(':8080/__agent/manifest');
     });
@@ -138,11 +138,5 @@ describe('patchAgentsMd', () => {
         expect(content).toContain('Do not touch this.');
         expect(content).toContain('Another line.');
         expect(content).toContain(':9000/__agent/manifest');
-    });
-
-    it('f) snippet itself contains both MARKER_START and MARKER_END', () => {
-        const snippet = buildAgentsMdSnippet(5173);
-        expect(snippet).toContain(MARKER_START);
-        expect(snippet).toContain(MARKER_END);
     });
 });

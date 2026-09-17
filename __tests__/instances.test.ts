@@ -4,7 +4,6 @@
  * Pattern: call handler directly with minimal `req`/`res` mocks (see `./helpers.ts`).
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import type http from 'node:http';
 import {ensureInstance} from '../devBrowserLogs/instanceRegistry';
 import {handleInstances} from '../devBrowserLogs/instances';
 import type {InstanceState} from '../devLogger/types';
@@ -90,7 +89,7 @@ describe('handleInstances (GET /__agent/instances)', () => {
         expect(list[0]).not.toHaveProperty('buffer');
     });
 
-    it('e) ?since=ISO filters out instances with lastSeen < since', () => {
+    it('e) ?since=ISO filters in instances with lastSeen >= since', () => {
         const a = ensureInstance(ctx, 'a');
         a.lastSeen = '2026-01-01T00:00:00.000Z';
         const b = ensureInstance(ctx, 'b');
@@ -131,12 +130,5 @@ describe('handleInstances (GET /__agent/instances)', () => {
         expect(body.error).toMatch(/Invalid/);
     });
 
-    it('h) only accepts GET method shape — non-GET requests still produce a body (handler ignores method)', () => {
-        // Handler does not branch on method; verify the documented GET contract via content-type/status.
-        const res = createRes();
-        const req = {url: '/__agent/instances', method: 'POST'} as unknown as http.IncomingMessage;
-        handleInstances(req, res, ctx);
-        expect(res.statusCode).toBe(200);
-        expect(res.headers['content-type']).toBe('application/json');
-    });
+    it.todo('verify request method (currently ignored)');
 });

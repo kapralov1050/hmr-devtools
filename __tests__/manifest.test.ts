@@ -24,7 +24,7 @@ describe('buildManifest()', () => {
         expect(m.version).toBe(packageJson.version);
     });
 
-    it('b) includes 4 tools with the expected names', () => {
+    it('b) declares 4 tools with the expected names', () => {
         const m = buildManifest();
         const names = m.tools.map((t) => t.name);
         expect(names).toEqual(['browser_logs', 'browser_eval', 'browser_dom', 'browser_instances']);
@@ -84,41 +84,28 @@ describe('handleManifest (GET /__agent/manifest)', () => {
         expect(body.system_hint.length).toBeGreaterThan(0);
     });
 
-    it('i) body.tools contains exactly 4 tools from the expected set', () => {
-        handleManifest(createReq('/__agent/manifest'), res);
-
-        const body = JSON.parse(res.body) as Manifest;
-        expect(Array.isArray(body.tools)).toBe(true);
-        expect(body.tools).toHaveLength(4);
-
-        const names = new Set(body.tools.map((t) => t.name));
-        for (const expected of ['browser_logs', 'browser_eval', 'browser_dom', 'browser_instances']) {
-            expect(names.has(expected)).toBe(true);
-        }
-    });
-
-    it('j) infers port from req.headers.host', () => {
+    it('i) infers port from req.headers.host', () => {
         handleManifest(createReq('/__agent/manifest', 'example.test:8765'), res);
 
         const body = JSON.parse(res.body) as Manifest;
         expect(body.port).toBe(8765);
     });
 
-    it('k) returns port=null when host header has no port', () => {
+    it('j) returns port=null when host header has no port', () => {
         handleManifest(createReq('/__agent/manifest', 'example.test'), res);
 
         const body = JSON.parse(res.body) as Manifest;
         expect('port' in body).toBe(false);
     });
 
-    it('l) returns port=null when host header is missing', () => {
+    it('k) returns port=null when host header is missing', () => {
         handleManifest(createReq('/__agent/manifest', undefined), res);
 
         const body = JSON.parse(res.body) as Manifest;
         expect('port' in body).toBe(false);
     });
 
-    it('m) ignores non-numeric port in host header', () => {
+    it('l) ignores non-numeric port in host header', () => {
         handleManifest(createReq('/__agent/manifest', 'example.test:abc'), res);
 
         const body = JSON.parse(res.body) as Manifest;

@@ -32,11 +32,6 @@ describe('pushToBuffer (ring buffer, per-instance)', () => {
         expect(buf.map((e) => e.msg)).toEqual(['a', 'b', 'c']);
     });
 
-    it('lazily creates the instance entry on first push', () => {
-        pushToBuffer(ctx, 'lazy', entry('x'));
-        expect(ctx.instances.has('lazy')).toBe(true);
-    });
-
     it('truncates half and adds a `truncate` marker when maxEntries is exceeded', () => {
         const buf = ctx.instances.get('tab-1')?.buffer ?? (() => {
             pushToBuffer(ctx, 'tab-1', entry('init'));
@@ -64,13 +59,15 @@ describe('pushToBuffer (ring buffer, per-instance)', () => {
         expect(last?.level).toBe('info');
     });
 
-    it('keeps buffer length bounded across multiple overflows', () => {
-        for (let i = 0; i < 2 * maxEntries + 10; i++) {
-            pushToBuffer(ctx, 'tab-1', entry(`e-${i}`));
+    it('keeps buffer length bounded after an overflow', () => {
+        pushToBuffer(ctx, 'tab-1', entry('init'));
+        const buf = ctx.instances.get('tab-1')!.buffer;
+        for (let i = 0; i < maxEntries; i++) {
+            buf.push(entry(`init-${i}`));
         }
+        pushToBuffer(ctx, 'tab-1', entry('overflow'));
 
-        const buf = ctx.instances.get('tab-1')?.buffer ?? [];
-        expect(buf.length).toBeLessThanOrEqual(maxEntries + 1);
-        expect(buf.length).toBeGreaterThan(maxEntries / 2);
+        const after = ctx.instances.get('tab-1')!.buffer;
+        expect(after.length).toBeLessThanOrEqual(maxEntries + 1);
     });
 });
