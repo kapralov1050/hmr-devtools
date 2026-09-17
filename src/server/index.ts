@@ -1,5 +1,5 @@
 /**
- * Vite-плагин devBrowserLogs.
+ * Vite-плагин `pilot()` (экспорт по умолчанию из пакета `vite-agent-bridge`).
  *
  * Перехватывает логи и ошибки в браузере через HMR WebSocket
  * (не светится в Network-вкладке DevTools) и отдаёт их агенту по HTTP.
@@ -11,6 +11,12 @@ import {buildAgentsMdSnippet, patchAgentsMd} from './agentsMd';
 import {pushToBuffer} from './logs';
 import {registerMiddleware} from './middleware';
 import type {DevLogsContext} from './types';
+
+/** Опции плагина. */
+export interface PilotOptions {
+    /** Авто-патчить `AGENTS.md` в корне проекта при старте dev-сервера (по умолчанию `true`). */
+    patchAgentsMd?: boolean;
+}
 
 /** Создаёт серверный контекст с пустым instances registry и maps. */
 export function createContext(): DevLogsContext {
@@ -43,14 +49,18 @@ function scheduleAgentsMdPatch(server: ViteDevServer): void {
 }
 
 /** Vite-плагин factory. */
-export default function devBrowserLogs(): Plugin {
+export function pilot(options: PilotOptions = {}): Plugin {
+    const {patchAgentsMd: shouldPatchAgentsMd = true} = options;
+
     return {
-        name: 'dev-browser-logs',
+        name: 'vite-agent-bridge',
         configureServer(server) {
             const ctx = createContext();
 
             registerMiddleware(server, ctx);
-            scheduleAgentsMdPatch(server);
+            if (shouldPatchAgentsMd) {
+                scheduleAgentsMdPatch(server);
+            }
         },
     };
 }

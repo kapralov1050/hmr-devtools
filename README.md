@@ -2,6 +2,40 @@
 
 **Vite-плагин, дающий AI-агенту «глаза и руки» в dev-браузере через HMR WebSocket — без MCP, без внешних CLI, без дополнительных HTTP-эндпоинтов от браузера.** Канал связи — только HMR WS, существующий в любом Vite-проекте; агент обнаруживает возможности через манифест, выложенный плагином на фиксированный HTTP-эндпоинт.
 
+## Installation
+
+```bash
+npm install -D vite-agent-bridge
+```
+
+## Usage
+
+`vite.config.ts`:
+```ts
+import {defineConfig} from 'vite';
+import vue from '@vitejs/plugin-vue';
+import pilot from 'vite-agent-bridge';
+
+export default defineConfig({
+    plugins: [vue(), pilot()],
+});
+```
+
+`main.ts` (до `app.mount`):
+```ts
+import {createApp} from 'vue';
+import App from './App.vue';
+import {initDevLogger} from 'vite-agent-bridge';
+
+if (import.meta.env.DEV) {
+    initDevLogger();
+}
+
+createApp(App).mount('#app');
+```
+
+> Plugin is dev-only by design. In production builds, `pilot()` is a no-op and `initDevLogger()` short-circuits on `import.meta.hot` absence.
+
 ---
 
 ## 1. Контекст и ограничения
@@ -33,21 +67,21 @@
 
 ## 3. Quick start
 
-Сейчас код живёт **in-tree** (планируется npm-пакет — см. [NPM_PUBLISH_PLAN.md](./NPM_PUBLISH_PLAN.md)).
+Для npm-установки смотри §Installation выше. Для in-tree разработки (клонировал репо — играешься):
 
 **1. Подключить плагин в `vite.config.ts`:**
 ```ts
 import { defineConfig } from 'vite';
-import devBrowserLogs from './server/index';
+import pilot from './src/server';
 
 export default defineConfig({
-  plugins: [devBrowserLogs()],
+  plugins: [pilot()],
 });
 ```
 
 **2. Инициализировать клиент в `main.ts`:**
 ```ts
-import { initDevLogger } from './client/index';
+import { initDevLogger } from './src/client';
 
 if (import.meta.env.DEV) {
   initDevLogger();
@@ -178,92 +212,101 @@ curl -s -X POST 'http://localhost:5173/__dev_exec' \
 hmr devtools/
 ├── README.md                       ← этот файл
 ├── NPM_PUBLISH_PLAN.md             ← план подготовки к публикации в npm
-├── AGENTS.md                       ← правила для субагентов
-├── package.json                    ← npm scripts (verify = typecheck + lint + test + coverage)
-├── tsconfig.json
-├── vitest.config.ts
-├── eslint.config.js
-├── .prettierrc.json
-│
-├── server/                         ← серверная часть (Node, Vite plugin)
-│   ├── index.ts                    ← Vite plugin factory, configureServer
-│   ├── types.ts                    ← InstanceState, LogPayload, ManifestTool, …
-│   │
-│   ├── manifest.ts                 ← GET /__agent/manifest
-│   ├── logs.ts                     ← GET /__dev_logs (legacy) + фильтры
-│   ├── exec.ts                     ← POST /__dev_exec
-│   ├── dom.ts                      ← GET /__agent/dom?format=compact|raw
-│   ├── instances.ts                ← GET /__agent/instances
-│   │
-│   ├── instanceRegistry.ts         ← Map<InstanceId, InstanceState>
-│   ├── agentsMd.ts                 ← merge-патч AGENTS.md
-│   └── middleware.ts               ← общий router
-│
-├── client/                         ← клиентская часть (браузер, dev only)
-│   ├── index.ts                    ← initDevLogger() — точка входа
-│   ├── constants.ts                ← HMR event names, defaults
-│   ├── types.ts                    ← InstanceId, AgentMessageEnvelope, …
-│   │
-│   ├── core/
-│   │   ├── originals.ts            ← оригиналы + trackedListeners
-│   │   ├── dedup.ts                ← sendLog + dedup state
-│   │   ├── flushQueue.ts           ← rate limiting через queueMicrotask
-│   │   ├── listeners.ts            ← addTrackedListener
-│   │   ├── index.ts                ← barrel re-export (back-compat)
-│   │   ├── logFormat.ts            ← formatArgs, formatReason, maxArgLen
-│   │   ├── logPayload.ts           ← createLog + LogInput + nowTs/pageUrl
-│   │   ├── errorHelpers.ts         ← findError, getStack, getComponentName
-│   │   ├── execTimeout.ts          ← ExecTimeoutError + withTimeout
-│   │   └── serialize.ts            ← safeSerialize с cap + таймаут + cyclic
-│   │
-│   ├── interceptors/
-│   │   ├── console.ts
-│   │   ├── network.ts
-│   │   ├── globalErrors.ts
-│   │   └── vue.ts
-│   │
-│   ├── channels/
-│   │   ├── instanceReg.ts
-│   │   ├── execChannel.ts
-│   │   └── domChannel/
-│   │       ├── index.ts
-│   │       ├── types.ts
-│   │       ├── interactive.ts
-│   │       ├── compact.ts
-│   │       └── raw.ts
-│   │
-│   └── helpers/
-│       └── agentHelpers/
-│           ├── index.ts            ← installAgentHelpers + globalThis
-│           ├── cache.ts            ← snapshot cache для __agent_click(idx)
-│           ├── queries.ts          ← __agent_snapshot / __agent_findByText
-│           ├── interactions.ts     ← __agent_click / setValue / type
-│           ├── waits.ts            ← __agent_wait / __agent_waitFor
-│           └── timing.ts           ← rafFrame / waitMs
-│
-├── __tests__/                      ← vitest, environment: jsdom
-│   ├── helpers.ts
-│   ├── agentHelpers.test.ts
-│   ├── agentsMd.test.ts
-│   ├── buffer.test.ts
-│   ├── dom.test.ts
-│   ├── domChannel.test.ts
-│   ├── exec.test.ts
-│   ├── execChannel.test.ts
-│   ├── execInstance.test.ts
-│   ├── execTimeout.test.ts
-│   ├── instanceReg.test.ts
-│   ├── instanceRegistry.test.ts
-│   ├── instances.test.ts
-│   ├── logsInstance.test.ts
-│   ├── manifest.test.ts
-│   ├── middleware.test.ts
-│   └── serialize.test.ts
-│
-└── coverage/                       ← AUTO-GENERATED, gitignored
-    ├── index.html                  ← точка входа в HTML-отчёт
-    ├── client/                     ← per-file coverage клиентских модулей
-    └── server/                     ← per-file coverage серверных модулей
+ ├── AGENTS.md                       ← правила для субагентов
+ ├── CHANGELOG.md                    ← история релизов (Keep a Changelog)
+ ├── LICENSE                         ← MIT
+ ├── package.json                    ← npm scripts (verify = typecheck + lint + test + coverage + build)
+ ├── tsup.config.ts                  ← ESM + .d.ts бандл
+ ├── tsconfig.json
+ ├── vitest.config.ts
+ ├── eslint.config.js
+ ├── .prettierrc.json
+ │
+ ├── src/
+ │   ├── index.ts                    ← public entry: pilot() default + initDevLogger named
+ │   ├── types.ts                    ← public types barrel
+ │   ├── constants.ts                ← public constants barrel
+ │   │
+ │   ├── server/                     ← Vite plugin (Node)
+ │   │   ├── index.ts                ← pilot() — Vite plugin factory
+ │   │   ├── types.ts                ← InstanceState, LogPayload, ManifestTool, …
+ │   │   │
+ │   │   ├── manifest.ts             ← GET /__agent/manifest
+ │   │   ├── logs.ts                 ← GET /__dev_logs (legacy) + фильтры
+ │   │   ├── exec.ts                 ← POST /__dev_exec
+ │   │   ├── dom.ts                  ← GET /__agent/dom?format=compact|raw
+ │   │   ├── instances.ts            ← GET /__agent/instances
+ │   │   │
+ │   │   ├── instanceRegistry.ts     ← Map<InstanceId, InstanceState>
+ │   │   ├── agentsMd.ts             ← merge-патч AGENTS.md
+ │   │   └── middleware.ts           ← общий router
+ │   │
+ │   └── client/                     ← browser-side (dev only)
+ │       ├── index.ts                ← initDevLogger() — точка входа
+ │       ├── constants.ts            ← HMR event names, defaults
+ │       ├── types.ts                ← InstanceId, AgentMessageEnvelope, …
+ │       │
+ │       ├── core/
+ │       │   ├── originals.ts        ← оригиналы + trackedListeners
+ │       │   ├── dedup.ts            ← sendLog + dedup state
+ │       │   ├── flushQueue.ts       ← rate limiting через queueMicrotask
+ │       │   ├── listeners.ts        ← addTrackedListener
+ │       │   ├── index.ts            ← barrel re-export (back-compat)
+ │       │   ├── logFormat.ts        ← formatArgs, formatReason, maxArgLen
+ │       │   ├── logPayload.ts       ← createLog + LogInput + nowTs/pageUrl
+ │       │   ├── errorHelpers.ts     ← findError, getStack, getComponentName
+ │       │   ├── execTimeout.ts      ← ExecTimeoutError + withTimeout
+ │       │   └── serialize.ts        ← safeSerialize с cap + таймаут + cyclic
+ │       │
+ │       ├── interceptors/
+ │       │   ├── console.ts
+ │       │   ├── network.ts
+ │       │   ├── globalErrors.ts
+ │       │   └── vue.ts
+ │       │
+ │       ├── channels/
+ │       │   ├── instanceReg.ts
+ │       │   ├── execChannel.ts
+ │       │   └── domChannel/
+ │       │       ├── index.ts
+ │       │       ├── types.ts
+ │       │       ├── interactive.ts
+ │       │       ├── compact.ts
+ │       │       └── raw.ts
+ │       │
+ │       └── helpers/
+ │           └── agentHelpers/
+ │               ├── index.ts        ← installAgentHelpers + globalThis
+ │               ├── cache.ts        ← snapshot cache для __agent_click(idx)
+ │               ├── queries.ts      ← __agent_snapshot / __agent_findByText
+ │               ├── interactions.ts ← __agent_click / setValue / type
+ │               ├── waits.ts        ← __agent_wait / __agent_waitFor
+ │               └── timing.ts       ← rafFrame / waitMs
+ │
+ ├── __tests__/                      ← vitest, environment: jsdom
+ │   ├── helpers.ts
+ │   ├── agentHelpers.test.ts
+ │   ├── agentsMd.test.ts
+ │   ├── buffer.test.ts
+ │   ├── dom.test.ts
+ │   ├── domChannel.test.ts
+ │   ├── exec.test.ts
+ │   ├── execChannel.test.ts
+ │   ├── execInstance.test.ts
+ │   ├── execTimeout.test.ts
+ │   ├── instanceReg.test.ts
+ │   ├── instanceRegistry.test.ts
+ │   ├── instances.test.ts
+ │   ├── logsInstance.test.ts
+ │   ├── manifest.test.ts
+ │   ├── middleware.test.ts
+ │   └── serialize.test.ts
+ │
+ ├── dist/                           ← AUTO-GENERATED, gitignored (tsup output: dist/index.js + dist/index.d.ts)
+ └── coverage/                       ← AUTO-GENERATED, gitignored
+     ├── index.html                  ← точка входа в HTML-отчёт
+     ├── src/client/                 ← per-file coverage клиентских модулей
+     └── src/server/                 ← per-file coverage серверных модулей
 ```
 
 ---

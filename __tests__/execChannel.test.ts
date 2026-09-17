@@ -8,8 +8,8 @@
  * vitest+jsdom) while keeping the production glue (`initDevExec`) untouched.
  */
 import {describe, expect, it, vi} from 'vitest';
-import {defaultExecTimeoutMs} from '../client/constants';
-import {makeDevExecHandler} from '../client/channels/execChannel';
+import {defaultExecTimeoutMs} from '../src/client/constants';
+import {makeDevExecHandler} from '../src/client/channels/execChannel';
 
 describe('makeDevExecHandler', () => {
     it('emits ok:true with serialized value for successful quick execution', async () => {

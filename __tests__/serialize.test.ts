@@ -2,8 +2,8 @@
  * Tests for devLogger/core/serialize.ts.
  */
 import {describe, expect, it} from 'vitest';
-import {defaultMaxSerializedBytes} from '../client/constants';
-import {safeSerialize, truncatePreview} from '../client/core/serialize';
+import {defaultMaxSerializedBytes} from '../src/client/constants';
+import {safeSerialize, truncatePreview} from '../src/client/core/serialize';
 
 describe('safeSerialize', () => {
     it('serializes a simple object with ok=true and expected fields', () => {

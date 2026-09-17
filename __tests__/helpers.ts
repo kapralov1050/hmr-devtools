@@ -8,8 +8,8 @@
  * object mock that records `end(data)` synchronously is enough.
  */
 import type http from 'node:http';
-import type {DevLogsContext} from '../server/types';
-import {pushToBuffer} from '../server/logs';
+import type {DevLogsContext} from '../src/server/types';
+import {pushToBuffer} from '../src/server/logs';
 
 export interface MockRes {
     body: string;

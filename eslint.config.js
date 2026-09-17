@@ -3,7 +3,7 @@ import prettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   {
-    ignores: ['node_modules/**', 'dist/**', 'coverage/**', '.kilo/**', 'vitest.config.ts'],
+    ignores: ['node_modules/**', 'dist/**', 'coverage/**', '.kilo/**', 'vitest.config.ts', 'tsup.config.ts'],
   },
   ...tseslint.configs.recommendedTypeChecked,
   {
@@ -24,20 +24,20 @@ export default tseslint.config(
       'no-console': 'error',
     },
   },
-  // Phase 0: legacy client-файлы (написаны до Phase 1 и не подвергались
-  // полному type-checked режиму). Новый код в `client/channels/**`,
-  // `client/core/serialize.ts`, `client/core/execTimeout.ts`,
-  // `client/helpers/**`, `client/constants.ts`, `client/types.ts`
+  // Legacy client-файлы (написаны до Phase 1 и не подвергались
+  // полному type-checked режиму). Новый код в `src/client/channels/**`,
+  // `src/client/core/serialize.ts`, `src/client/core/execTimeout.ts`,
+  // `src/client/helpers/**`, `src/client/constants.ts`, `src/client/types.ts`
   // подчиняется полному набору правил и override не получает.
   {
     files: [
-      'client/index.ts',
-      'client/interceptors/**',
-      'client/core/index.ts',
-      'client/core/originals.ts',
-      'client/core/flushQueue.ts',
-      'client/channels/execChannel.ts',
-      'client/channels/instanceReg.ts',
+      'src/client/index.ts',
+      'src/client/interceptors/**',
+      'src/client/core/index.ts',
+      'src/client/core/originals.ts',
+      'src/client/core/flushQueue.ts',
+      'src/client/channels/execChannel.ts',
+      'src/client/channels/instanceReg.ts',
     ],
     rules: {
       '@typescript-eslint/no-unsafe-assignment': 'off',

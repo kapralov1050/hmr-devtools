@@ -16,7 +16,7 @@ import {
     __agent_wait,
     __agent_waitFor,
     installAgentHelpers,
-} from '../client/helpers/agentHelpers';
+} from '../src/client/helpers/agentHelpers';
 
 function makePage(html: string): void {
     document.body.innerHTML = html;

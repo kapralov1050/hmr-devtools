@@ -9,7 +9,7 @@
 import type http from 'node:http';
 import {agentDomEndpoint, agentEvalEndpoint, agentInstancesEndpoint} from '../client/constants';
 import type {Manifest, ManifestTool} from '../client/types';
-import packageJson from '../package.json' with {type: 'json'};
+import packageJson from '../../package.json' with {type: 'json'};
 import type {DevLogsContext} from './types';
 
 /** `name` плагина, отдаваемый в манифесте (фиксированная метка, не из package.json). */

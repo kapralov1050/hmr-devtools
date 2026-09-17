@@ -8,8 +8,8 @@
  * `DevLogsContext` — that surface is fully covered by the helpers.
  */
 import {beforeEach, describe, expect, it} from 'vitest';
-import type {LogPayload} from '../client/types';
-import {handleDevLog, handleLogs} from '../server/logs';
+import type {LogPayload} from '../src/client/types';
+import {handleDevLog, handleLogs} from '../src/server/logs';
 import {createContext, createReq, createRes} from './helpers';
 
 function log(overrides: Partial<LogPayload> = {}): LogPayload {
