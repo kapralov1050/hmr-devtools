@@ -5,28 +5,23 @@
  * событием `dev-exec-result`.
  *
  * Активен только в dev-режиме (наличие import.meta.hot).
+ *
+ * Чистая логика вынесена в `makeDevExecHandler(send)` — это позволяет
+ * тестировать handler без мока `import.meta.hot` через инъекцию sender'а.
  */
-import {hmrEventExec, hmrEventExecResult} from '@/constants';
+import {defaultExecTimeoutMs, hmrEventExec, hmrEventExecResult} from '@/constants';
+import {ExecTimeoutError, withTimeout} from '@/core/execTimeout';
+import {safeSerialize} from '@/core/serialize';
+
+export type DevExecSender = (event: string, payload: unknown) => void;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
 }
 
-function serialize(value: unknown): string {
-    try {
-        return JSON.stringify(value) ?? String(value);
-    } catch {
-        return String(value);
-    }
-}
-
-/** Регистрирует HMR-слушатель `dev-exec` (idempotent через dispose). */
-export function initDevExec(): void {
-    if (!import.meta.hot) {
-        return;
-    }
-
-    const handler = async (data: unknown): Promise<void> => {
+/** Создаёт handler `dev-exec`, отправляющий ответы через переданный sender. */
+export function makeDevExecHandler(send: DevExecSender): (data: unknown) => Promise<void> {
+    return async (data: unknown): Promise<void> => {
         if (!isRecord(data) || typeof data.id !== 'string' || typeof data.code !== 'string') {
             return;
         }
@@ -36,17 +31,45 @@ export function initDevExec(): void {
         try {
             const fn = new Function('"use strict"; return (async () => {\n' + code + '\n})();');
 
-            const value = await fn();
+            const value = await withTimeout(fn(), defaultExecTimeoutMs);
 
-            import.meta.hot?.send(hmrEventExecResult, {id, ok: true, value: serialize(value)});
+            const serialized = safeSerialize(value);
+            if (serialized.ok) {
+                send(hmrEventExecResult, {id, ok: true, value: serialized.value});
+            } else {
+                send(hmrEventExecResult, {
+                    id,
+                    ok: false,
+                    error: serialized.error,
+                    hint: serialized.hint,
+                });
+            }
         } catch (e) {
-            import.meta.hot?.send(hmrEventExecResult, {
+            const errorMessage =
+                e instanceof ExecTimeoutError
+                    ? e.message
+                    : e instanceof Error
+                      ? (e.stack ?? e.message)
+                      : String(e);
+            const hint = e instanceof ExecTimeoutError ? (e.hint ?? 'Reduce work or increase defaultExecTimeoutMs') : undefined;
+            send(hmrEventExecResult, {
                 id,
                 ok: false,
-                error: e instanceof Error ? (e.stack ?? e.message) : String(e),
+                error: errorMessage,
+                hint,
             });
         }
     };
+}
+
+/** Регистрирует HMR-слушатель `dev-exec` (idempotent через dispose). */
+export function initDevExec(): void {
+    if (!import.meta.hot) {
+        return;
+    }
+
+    const send: DevExecSender = (event, payload) => import.meta.hot?.send(event, payload);
+    const handler = makeDevExecHandler(send);
 
     import.meta.hot.on(hmrEventExec, handler);
 

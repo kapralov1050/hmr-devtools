@@ -4,9 +4,16 @@
  */
 import type http from 'node:http';
 import type {ViteDevServer} from 'vite';
-import {endpoint, execEndpoint, hmrEventExecResult, hmrEventLog} from '../devLogger/constants';
+import {
+    agentManifestEndpoint,
+    endpoint,
+    execEndpoint,
+    hmrEventExecResult,
+    hmrEventLog,
+} from '../devLogger/constants';
 import {handleDevLog, handleLogs} from './logs';
 import {handleExec, handleExecResult} from './exec';
+import {handleManifest} from './manifest';
 import type {DevLogsContext} from './types';
 
 /** Регистрирует middleware и WS-слушатели плагина на переданном сервере. */
@@ -20,5 +27,9 @@ export function registerMiddleware(server: ViteDevServer, ctx: DevLogsContext): 
 
     server.middlewares.use(execEndpoint, (req: http.IncomingMessage, res: http.ServerResponse) => {
         handleExec(req, res, server, ctx);
+    });
+
+    server.middlewares.use(agentManifestEndpoint, (req: http.IncomingMessage, res: http.ServerResponse) => {
+        handleManifest(req, res);
     });
 }
