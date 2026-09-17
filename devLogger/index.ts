@@ -11,7 +11,7 @@
  *
  * WebSocket и SSE (EventSource) НЕ перехватываются.
  */
-import {initConsoleInterceptors} from '@/utils/devLogger/consoleInterceptor';
+import {initConsoleInterceptors} from '@/consoleInterceptor';
 import {
     flushDuplicates,
     originalConsoleError,
@@ -23,11 +23,11 @@ import {
     originalXhrSend,
     resetDedupState,
     trackedListeners,
-} from '@/utils/devLogger/core';
-import {initDevExec} from '@/utils/devLogger/execChannel';
-import {initGlobalErrorInterceptors} from '@/utils/devLogger/globalErrorInterceptor';
-import {initNetworkInterceptors} from '@/utils/devLogger/networkInterceptor';
-import {setupDevLogger} from '@/utils/devLogger/vueInterceptor';
+} from '@/core';
+import {initDevExec} from '@/execChannel';
+import {initGlobalErrorInterceptors} from '@/globalErrorInterceptor';
+import {initNetworkInterceptors} from '@/networkInterceptor';
+import {setupDevLogger} from '@/vueInterceptor';
 
 export {setupDevLogger};
 

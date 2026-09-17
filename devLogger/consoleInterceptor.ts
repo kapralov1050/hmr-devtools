@@ -8,8 +8,8 @@ import {
     originalConsoleLog,
     originalConsoleWarn,
     sendLog,
-} from '@/utils/devLogger/core';
-import {createLog, findError, formatArgs, getStack} from '@/utils/devLogger/helpers';
+} from '@/core';
+import {createLog, findError, formatArgs, getStack} from '@/helpers';
 
 export function initConsoleInterceptors(): void {
     console.log = (...args: unknown[]) => {

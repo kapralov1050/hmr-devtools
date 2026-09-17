@@ -2,9 +2,9 @@
  * Перехват fetch и XMLHttpRequest.
  * Логируются API-вызовы, cross-origin, ошибки (status >= 400 / abort / timeout / network failure).
  */
-import {endpoint} from '@/utils/devLogger/constants';
-import {originalFetch, originalXhrOpen, originalXhrSend, sendLog} from '@/utils/devLogger/core';
-import {createLog, getStack} from '@/utils/devLogger/helpers';
+import {endpoint} from '@/constants';
+import {originalFetch, originalXhrOpen, originalXhrSend, sendLog} from '@/core';
+import {createLog, getStack} from '@/helpers';
 
 function isViteInternal(url: string): boolean {
     try {

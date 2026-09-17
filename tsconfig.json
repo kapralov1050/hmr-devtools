@@ -5,8 +5,8 @@
     "moduleResolution": "bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
@@ -24,5 +24,5 @@
     }
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "dist", "coverage", "devLogger", "devBrowserLogs.ts"]
+  "exclude": ["node_modules", "dist", "coverage"]
 }

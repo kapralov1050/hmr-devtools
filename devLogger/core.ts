@@ -3,7 +3,8 @@
  * Ядро dev-логгера: rate limiting, дедупликация, трекинг listener'ов.
  * Только для dev-режима (import.meta.hot).
  */
-import type {LogPayload} from '@/utils/devLogger/types';
+import {hmrEventLog} from '@/constants';
+import type {LogPayload} from '@/types';
 
 const maxBatch = 100;
 
@@ -45,7 +46,7 @@ function doFlush(): void {
 
     const send = (p: LogPayload): void => {
         if (import.meta.hot) {
-            import.meta.hot.send('dev-log', p);
+            import.meta.hot.send(hmrEventLog, p);
         }
     };
 

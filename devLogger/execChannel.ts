@@ -6,6 +6,8 @@
  *
  * Активен только в dev-режиме (наличие import.meta.hot).
  */
+import {hmrEventExec, hmrEventExecResult} from '@/constants';
+
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === 'object' && value !== null;
 }
@@ -36,9 +38,9 @@ export function initDevExec(): void {
 
             const value = await fn();
 
-            import.meta.hot?.send('dev-exec-result', {id, ok: true, value: serialize(value)});
+            import.meta.hot?.send(hmrEventExecResult, {id, ok: true, value: serialize(value)});
         } catch (e) {
-            import.meta.hot?.send('dev-exec-result', {
+            import.meta.hot?.send(hmrEventExecResult, {
                 id,
                 ok: false,
                 error: e instanceof Error ? (e.stack ?? e.message) : String(e),
@@ -46,11 +48,11 @@ export function initDevExec(): void {
         }
     };
 
-    import.meta.hot.on('dev-exec', handler);
+    import.meta.hot.on(hmrEventExec, handler);
 
     import.meta.hot.dispose(() => {
         if (typeof import.meta.hot.off === 'function') {
-            import.meta.hot.off('dev-exec', handler);
+            import.meta.hot.off(hmrEventExec, handler);
         }
     });
 }

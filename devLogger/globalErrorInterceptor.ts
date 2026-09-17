@@ -1,8 +1,8 @@
 /**
  * Перехват window.onerror (capture phase), unhandledrejection, ошибок ресурсов.
  */
-import {addTrackedListener, flushDuplicates, sendLog} from '@/utils/devLogger/core';
-import {createLog, formatReason, getStack} from '@/utils/devLogger/helpers';
+import {addTrackedListener, flushDuplicates, sendLog} from '@/core';
+import {createLog, formatReason, getStack} from '@/helpers';
 
 function getElementSrc(el: Element): string {
     if (el instanceof HTMLImageElement || el instanceof HTMLScriptElement) {

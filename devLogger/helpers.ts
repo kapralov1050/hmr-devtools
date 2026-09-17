@@ -3,7 +3,7 @@
  * Не зависят от модульного состояния core.ts.
  */
 import type {ComponentPublicInstance} from 'vue';
-import type {LogPayload} from '@/utils/devLogger/types';
+import type {LogPayload} from '@/types';
 
 export type LogInput = Omit<LogPayload, 'ts' | 'url'> & {url?: string};
 
