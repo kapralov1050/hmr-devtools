@@ -9,6 +9,7 @@
  * Чистая логика вынесена в `makeDevExecHandler(send)` — это позволяет
  * тестировать handler без мока `import.meta.hot` через инъекцию sender'а.
  */
+import {getInstanceId} from '@/channels/instanceReg';
 import {defaultExecTimeoutMs, hmrEventExec, hmrEventExecResult} from '@/constants';
 import {ExecTimeoutError, withTimeout} from '@/core/execTimeout';
 import {safeSerialize} from '@/core/serialize';
@@ -35,10 +36,11 @@ export function makeDevExecHandler(send: DevExecSender): (data: unknown) => Prom
 
             const serialized = safeSerialize(value);
             if (serialized.ok) {
-                send(hmrEventExecResult, {id, ok: true, value: serialized.value});
+                send(hmrEventExecResult, {id, fromInstance: getInstanceId(), ok: true, value: serialized.value});
             } else {
                 send(hmrEventExecResult, {
                     id,
+                    fromInstance: getInstanceId(),
                     ok: false,
                     error: serialized.error,
                     hint: serialized.hint,
@@ -54,6 +56,7 @@ export function makeDevExecHandler(send: DevExecSender): (data: unknown) => Prom
             const hint = e instanceof ExecTimeoutError ? (e.hint ?? 'Reduce work or increase defaultExecTimeoutMs') : undefined;
             send(hmrEventExecResult, {
                 id,
+                fromInstance: getInstanceId(),
                 ok: false,
                 error: errorMessage,
                 hint,
@@ -71,11 +74,20 @@ export function initDevExec(): void {
     const send: DevExecSender = (event, payload) => import.meta.hot?.send(event, payload);
     const handler = makeDevExecHandler(send);
 
-    import.meta.hot.on(hmrEventExec, handler);
+    // Filter: выполняем только exec-запросы, адресованные нашему инстансу.
+    // Если instanceId в WS-сообщении отсутствует (legacy), выполняем (back-compat).
+    const filtered = async (data: unknown): Promise<void> => {
+        if (isRecord(data) && typeof data.instanceId === 'string' && data.instanceId !== getInstanceId()) {
+            return;
+        }
+        await handler(data);
+    };
+
+    import.meta.hot.on(hmrEventExec, filtered);
 
     import.meta.hot.dispose(() => {
         if (typeof import.meta.hot.off === 'function') {
-            import.meta.hot.off(hmrEventExec, handler);
+            import.meta.hot.off(hmrEventExec, filtered);
         }
     });
 }

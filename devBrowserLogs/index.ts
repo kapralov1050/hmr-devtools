@@ -11,14 +11,14 @@ import {pushToBuffer} from './logs';
 import {registerMiddleware} from './middleware';
 import type {DevLogsContext} from './types';
 
-/** Создаёт серверный контекст с пустым buffer'ом и maps. */
+/** Создаёт серверный контекст с пустым instances registry и maps. */
 export function createContext(): DevLogsContext {
     const ctx: DevLogsContext = {
-        buffer: [],
+        instances: new Map(),
         execResults: new Map(),
         pendingExec: new Map(),
-        push(entry) {
-            pushToBuffer(ctx, entry);
+        push(instanceId, entry): void {
+            pushToBuffer(ctx, instanceId, entry);
         },
     };
 
@@ -31,15 +31,6 @@ export default function devBrowserLogs(): Plugin {
         name: 'dev-browser-logs',
         configureServer(server) {
             const ctx = createContext();
-
-            // Стартовая метка сессии — попадает в /__dev_logs первой записью.
-            ctx.push({
-                ts: new Date().toISOString(),
-                level: 'info',
-                type: 'session',
-                msg: '--- Dev session started ---',
-                url: '',
-            });
 
             registerMiddleware(server, ctx);
         },

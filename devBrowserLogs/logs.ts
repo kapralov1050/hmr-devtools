@@ -1,10 +1,11 @@
 /**
- * Серверная обработка `GET /__dev_logs` (legacy) с фильтрами.
- * Приём логов из HMR WebSocket (`dev-log`) и push в ring buffer.
+ * Серверная обработка `GET /__dev_logs` (legacy) с фильтрами и multi-instance.
+ * Приём логов из HMR WebSocket (`dev-log`) и push в per-instance ring buffer.
  */
 import type http from 'node:http';
-import type {LogPayload} from '../devLogger/types';
+import type {InstanceId, LogPayload} from '../devLogger/types';
 import {defaultMaxEntries} from '../devLogger/constants';
+import {ensureInstance} from './instanceRegistry';
 import type {DevLogsContext} from './types';
 
 /** Системные маркеры (session/truncate) проходят сквозь все фильтры. */
@@ -63,35 +64,75 @@ function stringifyFallback(value: unknown): string {
 }
 
 /**
- * Push в ring buffer. При переполнении — сбрасывает половину и кладёт
- * системный маркер `truncate` для информирования читающего агента.
+ * Push в ring buffer конкретного инстанса (lazily создаёт entry).
+ * При переполнении — сбрасывает половину и кладёт системный маркер `truncate`.
  */
-export function pushToBuffer(ctx: DevLogsContext, entry: LogPayload): void {
-    ctx.buffer.push(entry);
+export function pushToBuffer(ctx: DevLogsContext, instanceId: InstanceId, entry: LogPayload): void {
+    const inst = ensureInstance(ctx, instanceId);
+    inst.buffer.push(entry);
 
-    if (ctx.buffer.length > defaultMaxEntries) {
-        const dropCount = Math.floor(ctx.buffer.length / 2);
-        ctx.buffer.splice(0, dropCount);
-        ctx.buffer.push({
+    if (inst.buffer.length > defaultMaxEntries) {
+        const dropCount = Math.floor(inst.buffer.length / 2);
+        inst.buffer.splice(0, dropCount);
+        inst.buffer.push({
             ts: new Date().toISOString(),
             level: 'info',
             type: 'truncate',
-            msg: `Ring buffer trimmed ${dropCount} entries`,
+            msg: `Ring buffer trimmed ${dropCount} entries (instance ${instanceId})`,
             url: '',
         });
     }
 }
 
-/** Обработчик `dev-log` HMR-события: парсит и пушит в buffer. */
-export function handleDevLog(data: unknown, ctx: DevLogsContext): void {
-    const entry = parseLogEntry(data);
+function writeJson(res: http.ServerResponse, status: number, body: unknown): void {
+    res.statusCode = status;
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(body));
+}
 
+function listInstanceIds(ctx: DevLogsContext): InstanceId[] {
+    return Array.from(ctx.instances.keys()).sort();
+}
+
+/**
+ * Обработчик `dev-log` HMR-события: парсит envelope `{id, payload}` или legacy payload,
+ * маршрутизирует в буфер нужного инстанса.
+ *
+ * Fallback: legacy payload (без envelope) → 'default' инстанс.
+ */
+export function handleDevLog(data: unknown, ctx: DevLogsContext): void {
+    if (!isRecord(data)) {
+        return;
+    }
+
+    let instanceId: InstanceId;
+    let rawEntry: unknown;
+
+    if (typeof data.id === 'string' && isRecord(data.payload)) {
+        instanceId = data.id;
+        rawEntry = data.payload;
+    } else if (typeof data.ts === 'string' && typeof data.level === 'string') {
+        instanceId = 'default';
+        rawEntry = data;
+    } else {
+        return;
+    }
+
+    const entry = parseLogEntry(rawEntry);
     if (entry) {
-        pushToBuffer(ctx, entry);
+        pushToBuffer(ctx, instanceId, entry);
     }
 }
 
-/** HTTP-обработчик `GET /__dev_logs` с фильтрами level/type/url/text/since/limit. */
+/**
+ * HTTP-обработчик `GET /__dev_logs` с фильтрами level/type/url/text/since/limit/instance.
+ *
+ * Multi-instance:
+ * - `?instance=<id>` — отдаёт буфер конкретного инстанса (404 если неизвестен).
+ * - без `?instance=` и 0 инстансов — пустой NDJSON.
+ * - без `?instance=` и ровно 1 инстанс — back-compat: отдаём его буфер.
+ * - без `?instance=` и >1 инстансов — 400 + список доступных.
+ */
 export function handleLogs(
     req: http.IncomingMessage,
     res: http.ServerResponse,
@@ -107,10 +148,36 @@ export function handleLogs(
         const limitParam = parsed.searchParams.get('limit');
         const parsedLimit = limitParam ? Number.parseInt(limitParam, 10) : 0;
         const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? parsedLimit : 0;
+        const instanceFilter = parsed.searchParams.get('instance');
 
-        let entries = ctx.buffer.slice();
+        let entries: LogPayload[];
 
-        // Системные маркеры (session/truncate) не фильтруются по level
+        if (instanceFilter !== null) {
+            const inst = ctx.instances.get(instanceFilter);
+            if (!inst) {
+                writeJson(res, 404, {
+                    error: `Unknown instance '${instanceFilter}'`,
+                    instances: listInstanceIds(ctx),
+                });
+                return;
+            }
+            entries = inst.buffer.slice();
+        } else {
+            const instanceCount = ctx.instances.size;
+            if (instanceCount === 0) {
+                entries = [];
+            } else if (instanceCount === 1) {
+                const first = ctx.instances.values().next().value;
+                entries = first ? first.buffer.slice() : [];
+            } else {
+                writeJson(res, 400, {
+                    error: 'multiple instances, specify ?instance=',
+                    instances: listInstanceIds(ctx),
+                });
+                return;
+            }
+        }
+
         if (level) {
             entries = entries.filter((e) => e.level === level || isSystem(e));
         }

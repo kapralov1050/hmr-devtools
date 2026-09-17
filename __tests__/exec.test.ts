@@ -7,8 +7,11 @@
  * assert against and use to simulate the browser's reply synchronously.
  */
 import {beforeEach, describe, expect, it} from 'vitest';
+import type {LogPayload} from '../devLogger/types';
 import {handleExec, handleExecResult} from '../devBrowserLogs/exec';
 import {createContext, createMockServer, createReq, createRes} from './helpers';
+
+const emptyEntry: LogPayload = {ts: '', level: '', type: '', msg: '', url: ''};
 
 describe('handleExec (GET /__dev_exec)', () => {
     let ctx: ReturnType<typeof createContext>;
@@ -16,6 +19,8 @@ describe('handleExec (GET /__dev_exec)', () => {
 
     beforeEach(() => {
         ctx = createContext();
+        // Регистрируем единственный инстанс (back-compat: ровно 1 → без ?instance= работает)
+        ctx.push('tab-1', emptyEntry);
         server = createMockServer();
     });
 
@@ -39,10 +44,11 @@ describe('handleExec (GET /__dev_exec)', () => {
 
         // Exactly one WS message sent with the right shape
         expect(server.ws.sent).toHaveLength(1);
-        const payload = server.ws.sent[0] as {type: string; event: string; data: {id: string; code: string}};
+        const payload = server.ws.sent[0] as {type: string; event: string; data: {id: string; code: string; instanceId: string}};
         expect(payload.type).toBe('custom');
         expect(payload.event).toBe('dev-exec');
         expect(payload.data.code).toBe('document.title');
+        expect(payload.data.instanceId).toBe('tab-1');
         expect(typeof payload.data.id).toBe('string');
         expect(payload.data.id.length).toBeGreaterThan(0);
 

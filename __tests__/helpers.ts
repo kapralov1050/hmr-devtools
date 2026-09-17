@@ -66,11 +66,11 @@ export function createRes(): MockRes & http.ServerResponse {
 
 export function createContext(): DevLogsContext {
     const ctx: DevLogsContext = {
-        buffer: [],
+        instances: new Map(),
         execResults: new Map(),
         pendingExec: new Map(),
-        push(entry): void {
-            pushToBuffer(ctx, entry);
+        push(instanceId, entry): void {
+            pushToBuffer(ctx, instanceId, entry);
         },
     };
     return ctx;

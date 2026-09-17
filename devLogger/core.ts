@@ -2,7 +2,11 @@
 /**
  * Ядро dev-логгера: rate limiting, дедупликация, трекинг listener'ов.
  * Только для dev-режима (import.meta.hot).
+ *
+ * Все логи оборачиваются envelope `{id: instanceId, payload}` для multi-instance
+ * маршрутизации на сервере.
  */
+import {getInstanceId} from '@/channels/instanceReg';
 import {hmrEventLog} from '@/constants';
 import type {LogPayload} from '@/types';
 
@@ -46,7 +50,7 @@ function doFlush(): void {
 
     const send = (p: LogPayload): void => {
         if (import.meta.hot) {
-            import.meta.hot.send(hmrEventLog, p);
+            import.meta.hot.send(hmrEventLog, {id: getInstanceId(), payload: p});
         }
     };
 

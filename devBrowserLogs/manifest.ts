@@ -10,6 +10,7 @@ import type http from 'node:http';
 import {agentDomEndpoint, agentEvalEndpoint, agentInstancesEndpoint} from '../devLogger/constants';
 import type {Manifest, ManifestTool} from '../devLogger/types';
 import packageJson from '../package.json' with {type: 'json'};
+import type {DevLogsContext} from './types';
 
 /** `name` плагина, отдаваемый в манифесте (фиксированная метка, не из package.json). */
 const PLUGIN_NAME = 'vite-agent-bridge';
@@ -83,10 +84,10 @@ const EXAMPLES: readonly string[] = [
 ];
 
 /**
- * Собирает объект `Manifest`. Параметр `port` опционален: если не передан,
- * порт берётся из `host`-заголовка запроса (содержит `host:port`), либо `null`.
+ * Собирает объект `Manifest`. `port` и `instanceCount` опциональны — если не переданы,
+ * соответствующие поля в манифесте отсутствуют.
  */
-export function buildManifest(port: number | null = null): Manifest {
+export function buildManifest(port: number | null = null, instanceCount: number | null = null): Manifest {
     const manifest: Manifest = {
         v: 1,
         name: PLUGIN_NAME,
@@ -99,6 +100,9 @@ export function buildManifest(port: number | null = null): Manifest {
 
     if (port !== null) {
         manifest.port = port;
+    }
+    if (instanceCount !== null) {
+        manifest.instances = instanceCount;
     }
 
     return manifest;
@@ -121,10 +125,11 @@ function portFromHost(hostHeader: string | undefined): number | null {
 }
 
 /** HTTP-обработчик `GET /__agent/manifest`. */
-export function handleManifest(req: http.IncomingMessage, res: http.ServerResponse): void {
+export function handleManifest(req: http.IncomingMessage, res: http.ServerResponse, ctx?: DevLogsContext): void {
     try {
         const port = portFromHost(req.headers.host);
-        const manifest = buildManifest(port);
+        const instanceCount = ctx ? ctx.instances.size : null;
+        const manifest = buildManifest(port, instanceCount);
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json; charset=utf-8');

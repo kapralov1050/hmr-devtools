@@ -48,6 +48,8 @@ export interface Manifest {
     name: string;
     version: string;
     port?: number;
+    /** Количество активных browser-инстансов (для multi-instance). */
+    instances?: number;
     system_hint: string;
     capabilities: string[];
     tools: ManifestTool[];

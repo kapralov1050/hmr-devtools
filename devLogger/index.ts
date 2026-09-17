@@ -11,6 +11,7 @@
  *
  * WebSocket и SSE (EventSource) НЕ перехватываются.
  */
+import {initInstanceReg} from '@/channels/instanceReg';
 import {initConsoleInterceptors} from '@/consoleInterceptor';
 import {
     flushDuplicates,
@@ -37,6 +38,9 @@ let installed = false;
  * Устанавливает перехватчики console, глобальных ошибок и сети.
  * Идемпотентна: повторный вызов игнорируется. HMR-dispose восстанавливает оригиналы.
  * Вызывается из main.ts ДО app.mount.
+ *
+ * `initInstanceReg()` вызывается первым, чтобы `getInstanceId()` возвращал
+ * стабильный id во всех последующих envelope'ах (`dev-log`, `dev-exec-result`).
  */
 export function initDevLogger(): void {
     if (!import.meta.hot || installed) {
@@ -45,6 +49,7 @@ export function initDevLogger(): void {
 
     installed = true;
 
+    initInstanceReg();
     initConsoleInterceptors();
     initGlobalErrorInterceptors();
     initNetworkInterceptors();
