@@ -126,6 +126,11 @@ hmr devtools/
     ├── serialize.test.ts
     ├── domChannel.test.ts                 ← снапшот на JSDOM
     └── middleware.test.ts
+
+└── coverage/                              ← AUTO-GENERATED, gitignored
+    ├── index.html                         ← точка входа в HTML-отчёт
+    ├── client/                            ← per-file coverage клиентских модулей
+    └── server/                            ← per-file coverage серверных модулей
 ```
 
 ---
@@ -495,6 +500,7 @@ import.meta.hot.dispose(() => {
 | **Дедуп** | `core/dedup.ts` | Два подряд идентичных сообщения склеиваются; счётчик в маркере. |
 | **HMR-dispose корректность** | `index.ts`, `lifecycle.ts` | Каждый перехватчик имеет пару «установить/снять»; `trackedListeners` реестр для `window`-слушателей. |
 | **Скрытность в Network** | Контракт — только WS | В браузерной Network-вкладке видно только Vite HMR WebSocket. Никаких дополнительных запросов. |
+| **Coverage** | `vitest.config.ts`, `package.json` | Конфигурация в `vitest.config.ts`: провайдер `v8`, reporter `text` + `html`, include `client/**` + `server/**`. Запуск: `npm run test:coverage` — пишет текстовую сводку в stdout и HTML-отчёт в `coverage/` (gitignored). Точка просмотра — `coverage/index.html`. `verify` НЕ запускает coverage (остаётся быстрым: typecheck + lint + test). |
 
 ---
 
