@@ -12,6 +12,7 @@
  * WebSocket и SSE (EventSource) НЕ перехватываются.
  */
 import {initInstanceReg} from '@/channels/instanceReg';
+import {initDomChannel} from '@/channels/domChannel';
 import {initConsoleInterceptors} from '@/consoleInterceptor';
 import {
     flushDuplicates,
@@ -27,6 +28,7 @@ import {
 } from '@/core';
 import {initDevExec} from '@/execChannel';
 import {initGlobalErrorInterceptors} from '@/globalErrorInterceptor';
+import {installAgentHelpers} from '@/helpers/agentHelpers';
 import {initNetworkInterceptors} from '@/networkInterceptor';
 import {setupDevLogger} from '@/vueInterceptor';
 
@@ -50,10 +52,12 @@ export function initDevLogger(): void {
     installed = true;
 
     initInstanceReg();
+    installAgentHelpers();
     initConsoleInterceptors();
     initGlobalErrorInterceptors();
     initNetworkInterceptors();
     initDevExec();
+    initDomChannel();
 
     import.meta.hot.dispose(() => {
         console.log = originalConsoleLog;

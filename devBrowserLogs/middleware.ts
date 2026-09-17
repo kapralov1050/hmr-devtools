@@ -7,16 +7,19 @@
 import type http from 'node:http';
 import type {ViteDevServer} from 'vite';
 import {
+    agentDomEndpoint,
     agentInstancesEndpoint,
     agentManifestEndpoint,
     defaultInstanceHeartbeatMs,
     endpoint,
     execEndpoint,
+    hmrEventDomResponse,
     hmrEventExecResult,
     hmrEventInstanceHeartbeat,
     hmrEventInstanceRegister,
     hmrEventLog,
 } from '../devLogger/constants';
+import {handleDom, handleDomResponse} from './dom';
 import {handleDevLog, handleLogs} from './logs';
 import {handleExec, handleExecResult} from './exec';
 import {handleInstances} from './instances';
@@ -32,6 +35,7 @@ import type {DevLogsContext} from './types';
 export function registerMiddleware(server: ViteDevServer, ctx: DevLogsContext): void {
     server.ws.on(hmrEventLog, (data) => handleDevLog(data, ctx));
     server.ws.on(hmrEventExecResult, (data) => handleExecResult(data, ctx));
+    server.ws.on(hmrEventDomResponse, (data) => handleDomResponse(data, ctx));
     server.ws.on(hmrEventInstanceRegister, (data) => handleInstanceRegister(data, ctx));
     server.ws.on(hmrEventInstanceHeartbeat, (data) => handleInstanceHeartbeat(data, ctx));
 
@@ -49,6 +53,10 @@ export function registerMiddleware(server: ViteDevServer, ctx: DevLogsContext): 
 
     server.middlewares.use(agentInstancesEndpoint, (req: http.IncomingMessage, res: http.ServerResponse) => {
         handleInstances(req, res, ctx);
+    });
+
+    server.middlewares.use(agentDomEndpoint, (req: http.IncomingMessage, res: http.ServerResponse) => {
+        handleDom(req, res, server, ctx);
     });
 
     // Периодический prune протухших инстансов. Используем heartbeatMs как интервал:

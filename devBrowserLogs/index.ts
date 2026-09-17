@@ -18,6 +18,8 @@ export function createContext(): DevLogsContext {
         instances: new Map(),
         execResults: new Map(),
         pendingExec: new Map(),
+        domResults: new Map(),
+        pendingDom: new Map(),
         push(instanceId, entry): void {
             pushToBuffer(ctx, instanceId, entry);
         },

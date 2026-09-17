@@ -3,7 +3,7 @@
  * Импортируется только Node-кодом (Vite-плагином), алиасы `@/*` недоступны —
  * пути к `devLogger` относительные.
  */
-import type {InstanceId, InstanceState, LogPayload} from '../devLogger/types';
+import type {DomResponse, InstanceId, InstanceState, LogPayload} from '../devLogger/types';
 
 /** Результат выполнения JS в браузере (сохраняется на сервере до востребования). */
 export interface DevExecResult {
@@ -18,6 +18,9 @@ export interface DevExecResult {
 /** Резолвер для in-flight exec-запроса: вызывается при получении результата от браузера. */
 export type PendingExecResolver = (entry: DevExecResult) => void;
 
+/** Резолвер для in-flight DOM-запроса: вызывается при получении результата от браузера. */
+export type PendingDomResolver = (entry: DomResponse) => void;
+
 /** Серверное состояние инстанса: расширяет `InstanceState` per-instance ring buffer'ом. */
 export interface InstanceEntry extends InstanceState {
     buffer: LogPayload[];
@@ -31,9 +34,14 @@ export interface DevLogsContext {
     execResults: Map<string, DevExecResult>;
     /** Открытые ожидания ответа от браузера. */
     pendingExec: Map<string, PendingExecResolver>;
+    /** LRU-карта последних результатов dom (по id). */
+    domResults: Map<string, DomResponse>;
+    /** Открытые ожидания DOM-ответа от браузера. */
+    pendingDom: Map<string, PendingDomResolver>;
     /** Push в буфер конкретного инстанса (lazily создаёт entry, если инстанс неизвестен). */
     push(instanceId: InstanceId, entry: LogPayload): void;
 }
 
 /** Лимиты, общие для модулей. */
 export const maxExecResults = 50;
+export const maxDomResults = 50;
