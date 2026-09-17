@@ -500,7 +500,7 @@ import.meta.hot.dispose(() => {
 | **Дедуп** | `core/dedup.ts` | Два подряд идентичных сообщения склеиваются; счётчик в маркере. |
 | **HMR-dispose корректность** | `index.ts`, `lifecycle.ts` | Каждый перехватчик имеет пару «установить/снять»; `trackedListeners` реестр для `window`-слушателей. |
 | **Скрытность в Network** | Контракт — только WS | В браузерной Network-вкладке видно только Vite HMR WebSocket. Никаких дополнительных запросов. |
-| **Coverage** | `vitest.config.ts`, `package.json` | Конфигурация в `vitest.config.ts`: провайдер `v8`, reporter `text` + `html`, include `client/**` + `server/**`. Запуск: `npm run test:coverage` — пишет текстовую сводку в stdout и HTML-отчёт в `coverage/` (gitignored). Точка просмотра — `coverage/index.html`. `verify` НЕ запускает coverage (остаётся быстрым: typecheck + lint + test). |
+| **Coverage** | `vitest.config.ts`, `package.json` | Quality gate. Конфигурация в `vitest.config.ts`: провайдер `v8`, reporter `text` + `html`, include `client/**` + `server/**`. Глобальные thresholds: `lines ≥ 70`, `branches ≥ 70`, `functions ≥ 80`, `statements ≥ 70` (`perFile: false`). Exclude: `client/index.ts`, `client/interceptors/**`, `client/core/index.ts`, `client/helpers/agentHelpers/index.ts` — jsdom не имеет `import.meta.hot`, этот код делает early return и не может быть покрыт в unit-тестах. `npm run test:coverage` — детальный отчёт (stdout + HTML в `coverage/index.html`, gitignored). `npm run verify` запускает coverage как обязательный gate: нарушение порога → exit ≠ 0. |
 
 ---
 
