@@ -185,11 +185,7 @@ export function handleDom(
                 const sizeBytes = entry.sizeBytes ?? (tree !== undefined ? JSON.stringify(tree).length : 0);
                 const truncated = entry.truncated === true || sizeBytes > maxSize;
 
-                if (truncated && sizeBytes > maxSize) {
-                    writeJson(res, 200, {format: 'raw', tree, sizeBytes, truncated: true});
-                } else {
-                    writeJson(res, 200, {format: 'raw', tree, sizeBytes, truncated});
-                }
+                writeJson(res, 200, {format: 'raw', tree, sizeBytes, truncated});
                 return;
             }
 

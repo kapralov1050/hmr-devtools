@@ -19,7 +19,7 @@ const PLUGIN_NAME = 'vite-agent-bridge';
 const SYSTEM_HINT = 'When debugging browser issues, prefer /__agent/* over guessing.';
 
 /** Список capability-флагов для быстрой ориентации агента. */
-const CAPABILITIES = ['logs', 'eval', 'dom', 'instances'] as const;
+const CAPABILITIES = ['logs', 'eval', 'dom-compact', 'dom-raw', 'instances'] as const;
 
 const TOOLS: readonly ManifestTool[] = [
     {

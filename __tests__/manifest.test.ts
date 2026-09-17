@@ -42,7 +42,7 @@ describe('buildManifest()', () => {
 
     it('e) declares capabilities and a non-empty system_hint', () => {
         const m = buildManifest();
-        expect(m.capabilities).toEqual(['logs', 'eval', 'dom', 'instances']);
+        expect(m.capabilities).toEqual(['logs', 'eval', 'dom-compact', 'dom-raw', 'instances']);
         expect(m.system_hint.length).toBeGreaterThan(0);
     });
 
